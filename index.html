@@ -44,7 +44,7 @@
 
     <div id="filterConsole" class="filter-section">
         <strong>Filter Stories:</strong>
-        <div style="margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+        <div style="margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px;">
             <div>
                 <label>Rating: </label>
                 <select id="searchRating" onchange="filterFics()" style="width:auto; margin:0; padding:5px;">
@@ -62,6 +62,10 @@
                     <option value="Buck/Eddie">Buck/Eddie</option>
                     <option value="Other">Other</option>
                 </select>
+            </div>
+            <div>
+                <label>Author: </label>
+                <input type="text" id="searchAuthor" placeholder="Search author..." oninput="filterFics()" style="width:160px; margin:0; padding:5px; display:inline-block;">
             </div>
         </div>
         <div class="checkbox-group" style="margin-top: 12px;">
@@ -131,7 +135,7 @@
         <div style="margin-bottom: 20px;" id="ficMeta"></div>
         <div class="fic-body" id="ficContent"></div>
         <div style="margin-top: 15px;">
-            <button class="btn" style="background:#800000;" id="likeBtn" onclick="submitLike()">❤️ Like / Kudos (<span id="likeCount">0</span>)</button>
+            <button class="btn" style="background:#800000;" id="likeBtn" onclick="submitLike()">🤍 Like / Kudos (<span id="likeCount">0</span>)</button>
         </div>
         <div class="comment-section">
             <h3 style="margin-top:0; color:#e0e0e0;">Comments</h3>
@@ -160,11 +164,13 @@
         function filterFics() {
             const targetRating = document.getElementById('searchRating').value;
             const targetPairing = document.getElementById('searchPairing').value;
+            const targetAuthor = document.getElementById('searchAuthor').value.toLowerCase().trim();
             const targetTags = Array.from(document.querySelectorAll('.searchTag:checked')).map(cb => cb.value);
             
             let filtered = allData;
             if (targetRating !== "All") filtered = filtered.filter(f => f.rating === targetRating);
             if (targetPairing !== "All") filtered = filtered.filter(f => f.pairing === targetPairing);
+            if (targetAuthor) filtered = filtered.filter(f => (f.author || "Anonymous").toLowerCase().includes(targetAuthor));
             if (targetTags.length > 0) filtered = filtered.filter(f => targetTags.every(t => f.tags.split(',').includes(t)));
             
             renderFeed(filtered);
