@@ -145,7 +145,7 @@
             <h4 style="color:#e0e0e0;">Leave a comment</h4>
             <input type="text" id="cName" placeholder="Your Name">
             <input type="text" id="cText" placeholder="Your Comment">
-            <button class="btn" onclick="submitComment()">Submit Comment</button>
+            <button class="btn" id="commentBtn" onclick="submitComment()">Submit Comment</button>
         </div>
     </div>
 
@@ -232,6 +232,13 @@
                 likeBtn.disabled = false;
                 likeBtn.innerText = `🤍 Like / Kudos (${activeFic.likesCount})`;
             }
+
+            // Reset comment button state
+            const commentBtn = document.getElementById('commentBtn');
+            if (commentBtn) {
+                commentBtn.disabled = false;
+                commentBtn.innerText = "Submit Comment";
+            }
             
             const tagPills = activeFic.tags ? activeFic.tags.split(',').map(t => `<span class="tag-pill">${t}</span>`).join('') : '';
             const pairingBadge = activeFic.pairing ? `<span class="pairing-badge" style="font-size:1rem;">${activeFic.pairing}</span>` : '';
@@ -294,17 +301,37 @@
         }
 
         async function submitComment() {
-            const payload = { type: "comments", ficTitle: activeFic.title, name: document.getElementById('cName').value.trim() || "Anonymous", comment: document.getElementById('cText').value.trim() };
+            const nameInput = document.getElementById('cName');
+            const commentInput = document.getElementById('cText');
+            const commentBtn = document.getElementById('commentBtn');
+
+            const payload = { 
+                type: "comments", 
+                ficTitle: activeFic.title, 
+                name: nameInput.value.trim() || "Anonymous", 
+                comment: commentInput.value.trim() 
+            };
+            
             if(!payload.comment) return alert("Write a comment first!");
             
-            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            
-            setTimeout(async () => {
-                const refreshRes = await fetch(API_URL);
-                allData = await refreshRes.json();
-                viewFic(allData.findIndex(f => f.title === activeFic.title));
-                document.getElementById('cText').value = '';
-            }, 1000);
+            // Instantly disable button and show loading text
+            commentBtn.disabled = true;
+            commentBtn.innerText = "Posting...";
+            commentInput.value = '';
+
+            try {
+                await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+                
+                setTimeout(async () => {
+                    const refreshRes = await fetch(API_URL);
+                    allData = await refreshRes.json();
+                    viewFic(allData.findIndex(f => f.title === activeFic.title));
+                }, 1500);
+            } catch (e) {
+                alert("Failed to submit comment. Please try again.");
+                commentBtn.disabled = false;
+                commentBtn.innerText = "Submit Comment";
+            }
         }
 
         function showIndex() {
@@ -338,7 +365,5 @@
 
         loadData();
     </script>
-</body>
-</html>
 </body>
 </html>
