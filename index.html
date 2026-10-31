@@ -321,19 +321,28 @@
 
             if(!commentText) return alert("Write a comment first!");
 
-            // 1. Instantly update UI (Optimistic update)
+            // 1. Give reassuring feedback that it's registering
+            commentBtn.disabled = true;
+            commentBtn.innerText = "Posting...";
+
+            // 2. Clear input right away
+            commentInput.value = '';
+
+            // 3. Tiny natural pause (600ms) for comfortable pacing
+            await new Promise(resolve => setTimeout(resolve, 600));
+
+            // 4. Pop comment onto the screen
             if (!activeFic.comments) activeFic.comments = [];
             activeFic.comments.push({ name: authorName, text: commentText });
 
             let cHtml = activeFic.comments.map(c => `<div class="comment"><strong>${c.name}:</strong> ${c.text}</div>`).join('');
             document.getElementById('commentsList').innerHTML = cHtml;
 
-            // 2. Clear input instantly
-            commentInput.value = '';
+            // 5. Reset button back to normal
             commentBtn.disabled = false;
             commentBtn.innerText = "Submit Comment";
 
-            // 3. Send to Google Sheets in the background
+            // 6. Send to Google Sheets safely in the background
             const payload = { 
                 type: "comments", 
                 ficTitle: activeFic.title, 
