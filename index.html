@@ -5,33 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waystation118</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 750px; margin: 20px auto; padding: 0 15px; background: #f4f4f4; color: #222; line-height: 1.6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 750px; margin: 20px auto; padding: 0 15px; background: #161616; color: #e0e0e0; line-height: 1.6; }
         header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #900; padding-bottom: 15px; margin-bottom: 20px; }
-        h1 { margin: 0; color: #900; font-size: 1.8rem; }
+        h1 { margin: 0; color: #ff3333; font-size: 1.8rem; }
         .nav-buttons { display: flex; gap: 8px; }
         .btn { background: #900; color: white; padding: 10px 16px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95rem; }
         .btn:hover { background: #b00; }
-        .btn-alt { background: #444; }
-        .btn-alt:hover { background: #666; }
+        .btn-alt { background: #333333; color: #e0e0e0; }
+        .btn-alt:hover { background: #444444; }
         .hidden { display: none; }
-        .card { background: white; padding: 20px; margin: 15px 0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card { background: #212121; padding: 20px; margin: 15px 0; border: 1px solid #333333; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #e0e0e0; }
         .card:hover { border-color: #900; }
-        .tag-pill { background: #e0e0e0; color: #444; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 5px; margin-bottom: 5px; font-weight: 500; display: inline-block; }
-        .rating-badge { background: #444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
-        .pairing-badge { background: #004080; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; }
-        .filter-section { background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 15px; }
+        .tag-pill { background: #333333; color: #cccccc; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 5px; margin-bottom: 5px; font-weight: 500; display: inline-block; }
+        .rating-badge { background: #333333; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; border: 1px solid #444; }
+        .pairing-badge { background: #003366; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 8px; border: 1px solid #004080; }
+        .filter-section { background: #212121; padding: 15px; border-radius: 6px; border: 1px solid #333333; margin-bottom: 15px; color: #e0e0e0; }
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-        input[type="text"], textarea, select { width: 100%; padding: 10px; margin: 8px 0 18px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        input[type="text"], textarea, select { width: 100%; padding: 10px; margin: 8px 0 18px 0; box-sizing: border-box; background: #2a2a2a; border: 1px solid #444444; border-radius: 4px; font-size: 1rem; color: #ffffff; }
+        input[type="checkbox"], input[type="radio"] { accent-color: #900; cursor: pointer; }
         textarea { height: 350px; font-family: inherit; }
-        .fic-body { white-space: pre-line; background: white; padding: 25px; border: 1px solid #ddd; border-radius: 6px; font-size: 1.1rem; }
-        .comment-section { margin-top: 40px; background: #eaeeef; padding: 20px; border-radius: 6px; }
-        .comment { border-bottom: 1px solid #cbd5cc; padding: 12px 0; }
+        .fic-body { white-space: pre-line; background: #212121; padding: 25px; border: 1px solid #333333; border-radius: 6px; font-size: 1.1rem; color: #e0e0e0; }
+        .comment-section { margin-top: 40px; background: #212121; padding: 20px; border-radius: 6px; border: 1px solid #333333; }
+        .comment { border-bottom: 1px solid #333333; padding: 12px 0; }
         .comment:last-child { border-bottom: none; }
+        #indexView, #formView, #ficView { background: #161616; }
+        #formView h2, #indexView h2 { color: #e0e0e0; }
+        ul#indexList li { color: #aaa; margin-bottom: 8px; }
     </style>
 </head>
 <body>
     <header>
-        <h1 onclick="showFeed()" style="cursor:pointer">📚 Waystation118</h1>
+        <h1 onclick="showFeed()" style="cursor:pointer">Waystation118</h1>
         <div class="nav-buttons">
             <button class="btn btn-alt" onclick="showIndex()">All Fics</button>
             <button class="btn" onclick="showForm()">Post a Fic</button>
@@ -78,7 +82,7 @@
 
     <div id="indexView" class="hidden">
         <h2>All Archive Fics (A-Z)</h2>
-        <hr style="border:0; border-top:1px solid #ccc; margin-bottom:15px;">
+        <hr style="border:0; border-top:1px solid #333; margin-bottom:15px;">
         <ul id="indexList" style="padding-left:20px;"></ul>
     </div>
 
@@ -122,18 +126,18 @@
 
     <div id="ficView" class="hidden">
         <button class="btn btn-alt" style="margin-bottom: 20px;" onclick="showFeed()">← Back to Feed</button>
-        <h2 id="ficTitle" style="margin-bottom:5px; font-size:2rem;"></h2>
-        <h3 id="ficAuthor" style="margin-top:0; color:#666; font-weight:normal; margin-bottom:10px;"></h3>
+        <h2 id="ficTitle" style="margin-bottom:5px; font-size:2rem; color:#e0e0e0;"></h2>
+        <h3 id="ficAuthor" style="margin-top:0; color:#aaa; font-weight:normal; margin-bottom:10px;"></h3>
         <div style="margin-bottom: 20px;" id="ficMeta"></div>
         <div class="fic-body" id="ficContent"></div>
         <div style="margin-top: 15px;">
             <button class="btn" style="background:#b22222;" id="likeBtn" onclick="submitLike()">❤️ Like / Kudos (<span id="likeCount">0</span>)</button>
         </div>
         <div class="comment-section">
-            <h3 style="margin-top:0;">Comments</h3>
+            <h3 style="margin-top:0; color:#e0e0e0;">Comments</h3>
             <div id="commentsList"></div>
-            <hr style="border: 0; border-top: 1px solid #cbd5cc; margin: 25px 0;">
-            <h4>Leave a comment</h4>
+            <hr style="border: 0; border-top: 1px solid #333333; margin: 25px 0;">
+            <h4 style="color:#e0e0e0;">Leave a comment</h4>
             <input type="text" id="cName" placeholder="Your Name">
             <input type="text" id="cText" placeholder="Your Comment">
             <button class="btn" onclick="submitComment()">Submit Comment</button>
@@ -174,8 +178,8 @@
                 const pairingBadge = fic.pairing ? `<span class="pairing-badge">${fic.pairing}</span>` : '';
                 
                 html += `<div class="card" onclick="viewFic(${originalIndex})">
-                    <h3 style="margin:0 0 5px 0; color:#900;"><span class="rating-badge">${fic.rating}</span>${pairingBadge}${fic.title}</h3>
-                    <p style="margin:0 0 8px 0; color:#555;">By <strong>${fic.author || 'Anonymous'}</strong> — ❤️ ${fic.likesCount} | 💬 ${fic.comments.length}</p>
+                    <h3 style="margin:0 0 5px 0; color:#ff4d4d;"><span class="rating-badge">${fic.rating}</span>${pairingBadge}${fic.title}</h3>
+                    <p style="margin:0 0 8px 0; color:#aaa;">By <strong>${fic.author || 'Anonymous'}</strong> — ❤️ ${fic.likesCount} | 💬 ${fic.comments.length}</p>
                     <div>${tagPills}</div>
                 </div>`;
             });
@@ -252,7 +256,7 @@
             const sorted = [...allData].sort((a, b) => a.title.localeCompare(b.title));
             let html = sorted.map(fic => {
                 const idx = allData.findIndex(f => f.title === fic.title);
-                return `<li><a href="#" class="index-link" style="color:#900; font-weight:bold; text-decoration:none;" onclick="viewFic(${idx}); return false;">${fic.title}</a> by ${fic.author || 'Anonymous'}</li>`;
+                return `<li><a href="#" class="index-link" style="color:#ff4d4d; font-weight:bold; text-decoration:none;" onclick="viewFic(${idx}); return false;">${fic.title}</a> by ${fic.author || 'Anonymous'}</li>`;
             }).join('');
             document.getElementById('indexList').innerHTML = html || "<li>No fics found.</li>";
         }
