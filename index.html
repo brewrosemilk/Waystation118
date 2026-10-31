@@ -157,7 +157,11 @@
         async function loadData() {
             try {
                 const res = await fetch(API_URL);
-                allData = await res.json();
+                const newData = await res.json();
+                
+                if (Array.isArray(newData)) {
+                    allData = newData;
+                }
                 
                 // Adjust likesCount based on browser localStorage to bridge Google Sheets write lag
                 allData.forEach(f => {
@@ -177,7 +181,14 @@
                 }
                 
                 filterFics();
-            } catch (e) { document.getElementById('feedView').innerHTML = "<h3>Failed to load database.</h3>"; }
+            } catch (e) { 
+                console.error("Load error:", e);
+                if (allData.length === 0) {
+                    document.getElementById('feedView').innerHTML = "<h3>Failed to load database. Please try refreshing.</h3>";
+                } else {
+                    filterFics();
+                }
+            }
         }
 
         function filterFics() {
@@ -233,7 +244,7 @@
                 likeBtn.innerText = `🤍 Like / Kudos (${activeFic.likesCount})`;
             }
 
-            // Reset comment button state
+            // Reset comment button state on view
             const commentBtn = document.getElementById('commentBtn');
             if (commentBtn) {
                 commentBtn.disabled = false;
@@ -323,10 +334,38 @@
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
                 
                 setTimeout(async () => {
-                    const refreshRes = await fetch(API_URL);
-                    allData = await refreshRes.json();
-                    viewFic(allData.findIndex(f => f.title === activeFic.title));
-                }, 1500);
+                    try {
+                        const refreshRes = await fetch(API_URL);
+                        const freshData = await refreshRes.json();
+                        
+                        if (Array.isArray(freshData) && freshData.length > 0) {
+                            allData = freshData;
+                        }
+
+                        // Keep local likes synced during refresh
+                        allData.forEach(f => {
+                            if (localStorage.getItem('liked_' + f.title) && !f._locallyCounted) {
+                                f.likesCount += 1;
+                                f._locallyCounted = true;
+                            }
+                        });
+
+                        // Safe search matching case-insensitively
+                        const foundIndex = allData.findIndex(f => f.title.toLowerCase() === activeFic.title.toLowerCase());
+                        if (foundIndex !== -1) {
+                            viewFic(foundIndex);
+                        } else {
+                            commentBtn.disabled = false;
+                            commentBtn.innerText = "Submit Comment";
+                            alert("Comment posted! Refresh the page to see it.");
+                        }
+                    } catch (err) {
+                        console.error("Refresh error:", err);
+                        commentBtn.disabled = false;
+                        commentBtn.innerText = "Submit Comment";
+                    }
+                }, 2000);
+
             } catch (e) {
                 alert("Failed to submit comment. Please try again.");
                 commentBtn.disabled = false;
