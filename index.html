@@ -158,7 +158,6 @@
                 const res = await fetch(API_URL);
                 allData = await res.json();
                 
-                // Check if a direct link hash exists in the URL
                 const hashTitle = decodeURIComponent(window.location.hash.substring(1));
                 if (hashTitle) {
                     const foundIndex = allData.findIndex(f => f.title.toLowerCase() === hashTitle.toLowerCase());
@@ -209,12 +208,12 @@
             document.getElementById('ficView').classList.remove('hidden');
             window.scrollTo(0,0);
             
-            // Set the URL hash for direct sharing
             window.location.hash = encodeURIComponent(activeFic.title);
             
             document.getElementById('ficTitle').innerText = activeFic.title;
             document.getElementById('ficAuthor').innerText = `By ${activeFic.author || 'Anonymous'}`;
             document.getElementById('likeCount').innerText = activeFic.likesCount;
+            document.getElementById('likeBtn').disabled = false; // Reset like button state when viewing a new fic
             
             const tagPills = activeFic.tags ? activeFic.tags.split(',').map(t => `<span class="tag-pill">${t}</span>`).join('') : '';
             const pairingBadge = activeFic.pairing ? `<span class="pairing-badge" style="font-size:1rem;">${activeFic.pairing}</span>` : '';
@@ -243,7 +242,7 @@
             if(!payload.title || !payload.body) return alert("Fill in your Title and Story content.");
             alert("Uploading... please click OK and wait.");
             
-            await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
             
             document.getElementById('title').value = ''; 
             document.getElementById('author').value = ''; 
@@ -255,20 +254,37 @@
         }
 
         async function submitLike() {
-            document.getElementById('likeBtn').disabled = true;
-            await fetch(API_URL, { method: "POST", body: JSON.stringify({ type: "likes", ficTitle: activeFic.title }) });
+            const likeBtn = document.getElementById('likeBtn');
+            likeBtn.disabled = true;
+            
+            // Optimistically update the UI immediately
             activeFic.likesCount += 1;
             document.getElementById('likeCount').innerText = activeFic.likesCount;
+
+            try {
+                await fetch(API_URL, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify({ type: "likes", ficTitle: activeFic.title }) 
+                });
+            } catch (e) {
+                console.error("Like error:", e);
+            }
         }
 
         async function submitComment() {
             const payload = { type: "comments", ficTitle: activeFic.title, name: document.getElementById('cName').value.trim() || "Anonymous", comment: document.getElementById('cText').value.trim() };
             if(!payload.comment) return alert("Write a comment first!");
-            await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-            const refreshRes = await fetch(API_URL);
-            allData = await refreshRes.json();
-            viewFic(allData.findIndex(f => f.title === activeFic.title));
-            document.getElementById('cText').value = '';
+            
+            await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            
+            // Wait a brief moment for Google Sheets to register the write, then refresh
+            setTimeout(async () => {
+                const refreshRes = await fetch(API_URL);
+                allData = await refreshRes.json();
+                viewFic(allData.findIndex(f => f.title === activeFic.title));
+                document.getElementById('cText').value = '';
+            }, 1000);
         }
 
         function showIndex() {
