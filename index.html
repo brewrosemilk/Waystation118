@@ -316,60 +316,35 @@
             const commentInput = document.getElementById('cText');
             const commentBtn = document.getElementById('commentBtn');
 
+            const authorName = nameInput.value.trim() || "Anonymous";
+            const commentText = commentInput.value.trim();
+
+            if(!commentText) return alert("Write a comment first!");
+
+            // 1. Instantly update UI (Optimistic update)
+            if (!activeFic.comments) activeFic.comments = [];
+            activeFic.comments.push({ name: authorName, text: commentText });
+
+            let cHtml = activeFic.comments.map(c => `<div class="comment"><strong>${c.name}:</strong> ${c.text}</div>`).join('');
+            document.getElementById('commentsList').innerHTML = cHtml;
+
+            // 2. Clear input instantly
+            commentInput.value = '';
+            commentBtn.disabled = false;
+            commentBtn.innerText = "Submit Comment";
+
+            // 3. Send to Google Sheets in the background
             const payload = { 
                 type: "comments", 
                 ficTitle: activeFic.title, 
-                name: nameInput.value.trim() || "Anonymous", 
-                comment: commentInput.value.trim() 
+                name: authorName, 
+                comment: commentText 
             };
-            
-            if(!payload.comment) return alert("Write a comment first!");
-            
-            // Instantly disable button and show loading text
-            commentBtn.disabled = true;
-            commentBtn.innerText = "Posting...";
-            commentInput.value = '';
 
             try {
                 await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-                
-                setTimeout(async () => {
-                    try {
-                        const refreshRes = await fetch(API_URL);
-                        const freshData = await refreshRes.json();
-                        
-                        if (Array.isArray(freshData) && freshData.length > 0) {
-                            allData = freshData;
-                        }
-
-                        // Keep local likes synced during refresh
-                        allData.forEach(f => {
-                            if (localStorage.getItem('liked_' + f.title) && !f._locallyCounted) {
-                                f.likesCount += 1;
-                                f._locallyCounted = true;
-                            }
-                        });
-
-                        // Safe search matching case-insensitively
-                        const foundIndex = allData.findIndex(f => f.title.toLowerCase() === activeFic.title.toLowerCase());
-                        if (foundIndex !== -1) {
-                            viewFic(foundIndex);
-                        } else {
-                            commentBtn.disabled = false;
-                            commentBtn.innerText = "Submit Comment";
-                            alert("Comment posted! Refresh the page to see it.");
-                        }
-                    } catch (err) {
-                        console.error("Refresh error:", err);
-                        commentBtn.disabled = false;
-                        commentBtn.innerText = "Submit Comment";
-                    }
-                }, 2000);
-
             } catch (e) {
-                alert("Failed to submit comment. Please try again.");
-                commentBtn.disabled = false;
-                commentBtn.innerText = "Submit Comment";
+                console.error("Comment background sync error:", e);
             }
         }
 
