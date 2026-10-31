@@ -157,6 +157,17 @@
             try {
                 const res = await fetch(API_URL);
                 allData = await res.json();
+                
+                // Check if a direct link hash exists in the URL
+                const hashTitle = decodeURIComponent(window.location.hash.substring(1));
+                if (hashTitle) {
+                    const foundIndex = allData.findIndex(f => f.title.toLowerCase() === hashTitle.toLowerCase());
+                    if (foundIndex !== -1) {
+                        viewFic(foundIndex);
+                        return;
+                    }
+                }
+                
                 filterFics();
             } catch (e) { document.getElementById('feedView').innerHTML = "<h3>Failed to load database.</h3>"; }
         }
@@ -197,6 +208,10 @@
             hideAllViews();
             document.getElementById('ficView').classList.remove('hidden');
             window.scrollTo(0,0);
+            
+            // Set the URL hash for direct sharing
+            window.location.hash = encodeURIComponent(activeFic.title);
+            
             document.getElementById('ficTitle').innerText = activeFic.title;
             document.getElementById('ficAuthor').innerText = `By ${activeFic.author || 'Anonymous'}`;
             document.getElementById('likeCount').innerText = activeFic.likesCount;
@@ -257,6 +272,7 @@
         }
 
         function showIndex() {
+            window.location.hash = '';
             hideAllViews();
             document.getElementById('indexView').classList.remove('hidden');
             const sorted = [...allData].sort((a, b) => a.title.localeCompare(b.title));
@@ -267,8 +283,21 @@
             document.getElementById('indexList').innerHTML = html || "<li>No fics found.</li>";
         }
 
-        function showForm() { hideAllViews(); document.getElementById('formView').classList.remove('hidden'); }
-        function showFeed() { hideAllViews(); document.getElementById('filterConsole').classList.remove('hidden'); document.getElementById('feedView').innerHTML = "<h2>Updating feed...</h2>"; document.getElementById('feedView').classList.remove('hidden'); loadData(); }
+        function showForm() { 
+            window.location.hash = '';
+            hideAllViews(); 
+            document.getElementById('formView').classList.remove('hidden'); 
+        }
+        
+        function showFeed() { 
+            window.location.hash = '';
+            hideAllViews(); 
+            document.getElementById('filterConsole').classList.remove('hidden'); 
+            document.getElementById('feedView').innerHTML = "<h2>Updating feed...</h2>"; 
+            document.getElementById('feedView').classList.remove('hidden'); 
+            loadData(); 
+        }
+        
         function hideAllViews() { document.getElementById('feedView').classList.add('hidden'); document.getElementById('ficView').classList.add('hidden'); document.getElementById('formView').classList.add('hidden'); document.getElementById('indexView').classList.add('hidden'); document.getElementById('filterConsole').classList.add('hidden'); }
 
         loadData();
