@@ -11,6 +11,7 @@
         .nav-buttons { display: flex; gap: 10px; justify-content: center; }
         .btn { background: #660000; color: white; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 0.95rem; }
         .btn:hover { background: #800000; }
+        .btn:disabled { background: #333333; color: #666; cursor: not-allowed; }
         .btn-alt { background: #333333; color: #e0e0e0; }
         .btn-alt:hover { background: #444444; }
         .hidden { display: none; }
@@ -158,6 +159,14 @@
                 const res = await fetch(API_URL);
                 allData = await res.json();
                 
+                // Adjust likesCount based on browser localStorage to bridge Google Sheets write lag
+                allData.forEach(f => {
+                    if (localStorage.getItem('liked_' + f.title) && !f._locallyCounted) {
+                        f.likesCount += 1;
+                        f._locallyCounted = true;
+                    }
+                });
+
                 const hashTitle = decodeURIComponent(window.location.hash.substring(1));
                 if (hashTitle) {
                     const foundIndex = allData.findIndex(f => f.title.toLowerCase() === hashTitle.toLowerCase());
@@ -213,7 +222,16 @@
             document.getElementById('ficTitle').innerText = activeFic.title;
             document.getElementById('ficAuthor').innerText = `By ${activeFic.author || 'Anonymous'}`;
             document.getElementById('likeCount').innerText = activeFic.likesCount;
-            document.getElementById('likeBtn').disabled = false; // Reset like button state when viewing a new fic
+            
+            // Check if user already liked this fic in this browser
+            const likeBtn = document.getElementById('likeBtn');
+            if (localStorage.getItem('liked_' + activeFic.title)) {
+                likeBtn.disabled = true;
+                likeBtn.innerText = `❤️ Liked / Kudos (${activeFic.likesCount})`;
+            } else {
+                likeBtn.disabled = false;
+                likeBtn.innerText = `🤍 Like / Kudos (${activeFic.likesCount})`;
+            }
             
             const tagPills = activeFic.tags ? activeFic.tags.split(',').map(t => `<span class="tag-pill">${t}</span>`).join('') : '';
             const pairingBadge = activeFic.pairing ? `<span class="pairing-badge" style="font-size:1rem;">${activeFic.pairing}</span>` : '';
@@ -255,11 +273,14 @@
 
         async function submitLike() {
             const likeBtn = document.getElementById('likeBtn');
+            if (localStorage.getItem('liked_' + activeFic.title)) return;
+
             likeBtn.disabled = true;
+            localStorage.setItem('liked_' + activeFic.title, 'true');
             
-            // Optimistically update the UI immediately
             activeFic.likesCount += 1;
             document.getElementById('likeCount').innerText = activeFic.likesCount;
+            likeBtn.innerText = `❤️ Liked / Kudos (${activeFic.likesCount})`;
 
             try {
                 await fetch(API_URL, { 
@@ -278,7 +299,6 @@
             
             await fetch(API_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
             
-            // Wait a brief moment for Google Sheets to register the write, then refresh
             setTimeout(async () => {
                 const refreshRes = await fetch(API_URL);
                 allData = await refreshRes.json();
@@ -318,5 +338,7 @@
 
         loadData();
     </script>
+</body>
+</html>
 </body>
 </html>
