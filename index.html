@@ -168,10 +168,10 @@
                 if (Array.isArray(rawData)) {
                     // Generate safe, collision-proof unique IDs entirely on the client side
                     // Reversing dataset so newest rows appear first
-                    allData = rawData.reverse().map((fic, index) => ({
-                        ...fic,
-                        uniqueId: "fic_" + index + "_" + encodeURIComponent((fic.title || "untitled").toLowerCase().replace(/\s+/g, '_'))
-                    }));
+                   allData = rawData.reverse().map((fic, index) => ({
+    ...fic,
+    uniqueId: (fic.title || "untitled").toLowerCase().trim().replace(/[^a-z0-9]+/g, '-')
+}));
                 }
                 
                 allData.forEach(f => {
